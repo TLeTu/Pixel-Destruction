@@ -12,7 +12,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private string levelFolder = "Data Levels";
     private List<LevelConfig> levelConfigs = new List<LevelConfig>();
     public IReadOnlyList<LevelConfig> LevelConfigs => levelConfigs;
-    private int currentLevelIndex = 0;
+    public int currentLevelIndex = 0;
+    private IGameState _currentState;
     void Awake()
     {
         if (instance == null)
@@ -29,6 +30,11 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         SetGameState(GameState.MainMenu);
+    }
+
+    void Update()
+    {
+        _currentState?.Update(); // Gọi Update của trạng thái hiện tại
     }
     private void LoadLevelConfigs()
     {
@@ -108,7 +114,7 @@ public class GameManager : MonoBehaviour
         UIManager.instance.SetUpgradeButtons(upgrade1, upgrade2);
     }
 
-    private void EndLevel()
+    public void EndLevel()
     {
         Debug.Log("Ending level and cleaning up. Returning to main menu.");
         PauseGame(true);
@@ -168,7 +174,7 @@ public class GameManager : MonoBehaviour
         levelToLoad = Mathf.Clamp(levelToLoad, 0, maxLevelIndex);
         LoadLevel(levelToLoad);
     }
-    private void PauseGame(bool shouldPause)
+    public void PauseGame(bool shouldPause)
     {
         Debug.Log((shouldPause ? "Pausing" : "Resuming") + " game. Pausing weapons and level.");
         ObstacleManager.instance.PauseWeapons(shouldPause);
@@ -182,40 +188,32 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        GameState currentState = gameState;
+        _currentState?.Exit();
+
         gameState = newState;
+
         switch (newState)
         {
             case GameState.MainMenu:
-                EndLevel();
+                _currentState = new MainMenuState(this);
                 break;
             case GameState.Playing:
-                InputManager.instance.EnableInput();
-                PauseGame(false);
+                _currentState = new PlayingState(this);
                 break;
             case GameState.ChooseUpgrade:
-                PauseGame(true);
-                InputManager.instance.DisableInput();
-                StartUpgrade();
+                _currentState = new ChooseUpgradeState(this);
                 break;
             case GameState.GameWin:
-                if (SaveManager.instance != null)
-                {
-                    int maxLevelIndex = Mathf.Max(0, levelConfigs.Count - 1);
-                    int nextUnlockedLevelIndex = Mathf.Min(currentLevelIndex + 1, maxLevelIndex);
-                    SaveManager.instance.SaveLevelIndex(nextUnlockedLevelIndex);
-                }
-                AudioManager.instance.PlayLevelWinSFX();
-                EndLevel();
-                InputManager.instance.DisableInput();
+                _currentState = new GameWinState(this);
                 break;
             case GameState.PlaceWeapon:
-                PauseGame(true);
-                InputManager.instance.EnableInput();
+                _currentState = new PlaceWeaponState(this);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(newState), newState, null);
         }
+
+        _currentState.Enter();
         Debug.Log("Game state changed to: " + newState);
 
         OnGameStateChanged?.Invoke(gameState);
