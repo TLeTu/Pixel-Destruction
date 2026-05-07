@@ -12,8 +12,8 @@ public class MainMenuState : IGameState
     public void Enter()
     {
         Debug.Log("Entering MainMenuState");
-        _gameManager.EndLevel(); // Cleanup any previous game state
+        _gameManager.EndLevel();
     }
     public void Exit() { Debug.Log("Exiting MainMenuState"); }
-    public void Update() { } // Main menu usually doesn't need per-frame updates
+    public void Update() { }
 }

@@ -66,13 +66,13 @@ public class ScoreManager : MonoBehaviour
         {
             currentThreshold += scoreThresholds;
             UIManager.instance.SetUpXPBar(currentScore, currentThreshold);
-            GameManager.instance.SetGameState(GameState.ChooseUpgrade);
+            GameEvents.Publish(new ScoreThresholdReachedEvent());
         }
 
         if (currentScore >= scoreTarget)
         {
             reachedTarget = true;
-            GameManager.instance.SetGameState(GameState.GameWin);
+            GameEvents.Publish(new LevelWinEvent());
         }
     }
 }

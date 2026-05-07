@@ -7,6 +7,6 @@ public class UpgradeBtnController : MonoBehaviour
     public void OnMouseDown()
     {
         Debug.Log("Upgrade button clicked: " + upgrade);
-        GameManager.instance.OnUpgradeSelected(upgrade);
+        GameEvents.Publish(new UpgradeSelectedEvent(upgrade));
     }
 }

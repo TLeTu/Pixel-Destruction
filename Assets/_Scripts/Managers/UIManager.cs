@@ -5,6 +5,7 @@ using TMPro;
 public class UIManager : MonoBehaviour
 {
     public static UIManager instance;
+    // UI Panels
     public Slider xpBar;
     public GameObject mainMenuPanel;
     public GameObject inGamePanel;
@@ -15,14 +16,25 @@ public class UIManager : MonoBehaviour
     public GameObject upgradeBtn1;
     public GameObject upgradeBtn2;
     public GameObject nextLevelBtn;
+    // UI Texts & Bars
     public TextMeshProUGUI levelInGameText;
     public TextMeshProUGUI XPBarText;
     public Slider scoreBar;
     public TextMeshProUGUI scoreBarText;
+    // Settings Panel
     public GameObject settingPanel;
     public GameObject musicSlider;
     public GameObject sfxSlider;
     private bool isSettingPanelOpen = false;
+
+    private readonly System.Collections.Generic.Dictionary<WeaponUpgrade, string> upgradeLabels = new System.Collections.Generic.Dictionary<WeaponUpgrade, string>
+    {
+        { WeaponUpgrade.Damage, "Damage +" },
+        { WeaponUpgrade.Time, "Faster Attacks" },
+        { WeaponUpgrade.Range, "Range +" },
+        { WeaponUpgrade.MoreWeapons, "More Weapons" }
+    };
+
     void Awake()
     {
         if (instance == null)
@@ -162,42 +174,19 @@ public class UIManager : MonoBehaviour
     {
         upgradeBtn1.GetComponent<UpgradeBtnController>().upgrade = upgrade1;
         upgradeBtn2.GetComponent<UpgradeBtnController>().upgrade = upgrade2;
-        string label1 = "";
-        string label2 = "";
-        switch (upgrade1)
-        {
-            case WeaponUpgrade.Damage:
-                label1 = "Damage +";
-                break;
-            case WeaponUpgrade.Time:
-                label1 = "Faster Attacks";
-                break;
-            case WeaponUpgrade.Range:
-                label1 = "Range +";
-                break;
-            case WeaponUpgrade.MoreWeapons:
-                label1 = "More Weapons";
-                break;
-        }
-        switch (upgrade2)
-        {
-            case WeaponUpgrade.Damage:
-                label2 = "Damage +";
-                break;
-            case WeaponUpgrade.Time:
-                label2 = "Faster Attacks";
-                break;
-            case WeaponUpgrade.Range:
-                label2 = "Range +";
-                break;
-            case WeaponUpgrade.MoreWeapons:
-                label2 = "More Weapons";
-                break;
-        }
-        SetButtonLabel(upgradeBtn1, label1);
-        SetButtonLabel(upgradeBtn2, label2);
+
+        SetButtonLabel(upgradeBtn1, GetUpgradeLabel(upgrade1));
+        SetButtonLabel(upgradeBtn2, GetUpgradeLabel(upgrade2));
     }
 
+    private string GetUpgradeLabel(WeaponUpgrade upgrade)
+    {
+        if (upgradeLabels.TryGetValue(upgrade, out string label))
+        {
+            return label;
+        }
+        return "Unknown";
+    }
     private void SetButtonLabel(GameObject buttonObj, string label)
     {
         TMP_Text tmpText = buttonObj.GetComponentInChildren<TMP_Text>();
@@ -246,19 +235,19 @@ public class UIManager : MonoBehaviour
 
     public void MenuPlayButton()
     {
-        GameManager.instance.StartGame();
+        GameEvents.Publish(new PlayButtonPressedEvent());
     }
     public void NextLevelButton()
     {
-        GameManager.instance.NextLevel();
+        GameEvents.Publish(new NextLevelButtonPressedEvent());
     }
     public void BackToMenuButton()
     {
-        GameManager.instance.SetGameState(GameState.MainMenu);
+        GameEvents.Publish(new BackToMenuButtonPressedEvent());
     }
     public void ReplayLevelButton()
     {
-        GameManager.instance.ReplayLevel();
+        GameEvents.Publish(new ReplayLevelButtonPressedEvent());
     }
     public void ToggleSettingPanel()
     {

@@ -25,6 +25,21 @@ public class ObstacleManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
+
+    private void OnEnable()
+    {
+        GameEvents.Subscribe<WeaponSlotClickedEvent>(HandleWeaponSlotClicked);
+    }
+
+    private void OnDisable()
+    {
+        GameEvents.Unsubscribe<WeaponSlotClickedEvent>(HandleWeaponSlotClicked);
+    }
+
+    private void HandleWeaponSlotClicked(WeaponSlotClickedEvent e)
+    {
+        TryPlaceWeaponOn(e.Obstacle);
+    }
     public void LoadWeaponPrefab(GameObject prefab)
     {
         weaponPrefab = prefab;
@@ -163,7 +178,7 @@ public class ObstacleManager : MonoBehaviour
         weaponsToPlaceQuota = 0;
         weaponsPlacedThisSession = 0;
 
-        GameManager.instance.SetGameState(GameState.Playing);
+        GameEvents.Publish(new WeaponPlacementFinishedEvent());
     }
 }
 

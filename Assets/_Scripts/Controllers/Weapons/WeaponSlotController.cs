@@ -9,8 +9,7 @@ public class WeaponSlotController : MonoBehaviour
         Debug.Log("The current game state is: " + GameManager.instance.gameState);  
         if (GameManager.instance.gameState == GameState.PlaceWeapon)
         {
-            Debug.Log("Trying to place weapon on obstacle: " + obstacle.name);
-            ObstacleManager.instance.TryPlaceWeaponOn(obstacle);
+            GameEvents.Publish(new WeaponSlotClickedEvent(obstacle));
         }
         // Destroy the button after clicking
         Destroy(gameObject);

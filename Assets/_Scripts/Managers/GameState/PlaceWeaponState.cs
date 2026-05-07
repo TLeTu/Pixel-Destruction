@@ -12,8 +12,8 @@ public class PlaceWeaponState : IGameState
     public void Enter()
     {
         Debug.Log("Entering PlaceWeaponState");
-        _gameManager.PauseGame(true); // Pause game
-        InputManager.instance.EnableInput(); // Enable input for placing weapons
+        _gameManager.PauseGame(true);
+        InputManager.instance.EnableInput();
     }
     public void Exit() { Debug.Log("Exiting PlaceWeaponState"); }
     public void Update() { }

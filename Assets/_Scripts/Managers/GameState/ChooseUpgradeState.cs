@@ -12,7 +12,7 @@ public class ChooseUpgradeState : IGameState
     public void Enter()
     {
         Debug.Log("Entering ChooseUpgradeState");
-        _gameManager.PauseGame(true); // Pause game
+        _gameManager.PauseGame(true);
         InputManager.instance.DisableInput();
         _gameManager.StartUpgrade();
     }

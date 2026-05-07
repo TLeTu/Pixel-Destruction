@@ -13,9 +13,9 @@ public class PlayingState : IGameState
     {
         Debug.Log("Entering PlayingState");
         InputManager.instance.EnableInput();
-        _gameManager.PauseGame(false); // Resume game
+        _gameManager.PauseGame(false);
     }
     public void Exit()
     { Debug.Log("Exiting PlayingState"); _gameManager.PauseGame(true); InputManager.instance.DisableInput(); }
-    public void Update() { } // Game logic is handled by other managers/controllers
+    public void Update() { }
 }

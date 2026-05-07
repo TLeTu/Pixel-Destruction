@@ -968,6 +968,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   gameState: 0
   levelFolder: Data Levels
+  currentLevelIndex: 0
 --- !u!1 &197362615
 GameObject:
   m_ObjectHideFlags: 0

@@ -27,6 +27,30 @@ public class GameManager : MonoBehaviour
         }
         LoadLevelConfigs();
     }
+
+    private void OnEnable()
+    {
+        GameEvents.Subscribe<ScoreThresholdReachedEvent>(HandleScoreThresholdReached);
+        GameEvents.Subscribe<LevelWinEvent>(HandleLevelWin);
+        GameEvents.Subscribe<WeaponPlacementFinishedEvent>(HandleWeaponPlacementFinished);
+        GameEvents.Subscribe<PlayButtonPressedEvent>(HandlePlayButtonPressed);
+        GameEvents.Subscribe<NextLevelButtonPressedEvent>(HandleNextLevelButtonPressed);
+        GameEvents.Subscribe<BackToMenuButtonPressedEvent>(GoToMainMenu);
+        GameEvents.Subscribe<ReplayLevelButtonPressedEvent>(HandleReplayLevelButtonPressed);
+        GameEvents.Subscribe<UpgradeSelectedEvent>(OnUpgradeSelected);
+    }
+
+    private void OnDisable()
+    {
+        GameEvents.Unsubscribe<ScoreThresholdReachedEvent>(HandleScoreThresholdReached);
+        GameEvents.Unsubscribe<LevelWinEvent>(HandleLevelWin);
+        GameEvents.Unsubscribe<WeaponPlacementFinishedEvent>(HandleWeaponPlacementFinished);
+        GameEvents.Unsubscribe<PlayButtonPressedEvent>(HandlePlayButtonPressed);
+        GameEvents.Unsubscribe<NextLevelButtonPressedEvent>(HandleNextLevelButtonPressed);
+        GameEvents.Unsubscribe<BackToMenuButtonPressedEvent>(GoToMainMenu);
+        GameEvents.Unsubscribe<ReplayLevelButtonPressedEvent>(HandleReplayLevelButtonPressed);
+        GameEvents.Unsubscribe<UpgradeSelectedEvent>(OnUpgradeSelected);
+    }
     void Start()
     {
         SetGameState(GameState.MainMenu);
@@ -140,20 +164,20 @@ public class GameManager : MonoBehaviour
         LoadLevel(nextLevelIndex);
     }
 
-    public void OnUpgradeSelected(WeaponUpgrade upgrade)
+    private void OnUpgradeSelected(UpgradeSelectedEvent e)
     {
         if (gameState != GameState.ChooseUpgrade)
         {
             return;
         }
 
-        if (upgrade == WeaponUpgrade.MoreWeapons)
+        if (e.Upgrade == WeaponUpgrade.MoreWeapons)
         {
             StartPlaceWeapon(1);
             return;
         }
 
-        ObstacleManager.instance.ApplyUpgradeToWeapon(upgrade);
+        ObstacleManager.instance.ApplyUpgradeToWeapon(e.Upgrade);
         SetGameState(GameState.Playing);
     }
     public void ReplayLevel()
@@ -180,6 +204,36 @@ public class GameManager : MonoBehaviour
         ObstacleManager.instance.PauseWeapons(shouldPause);
         LevelManager.instance.PauseLevel(shouldPause);
     }
+
+    private void HandleScoreThresholdReached(ScoreThresholdReachedEvent e)
+    {
+        SetGameState(GameState.ChooseUpgrade);
+    }
+    private void HandleLevelWin(LevelWinEvent e)
+    {
+        SetGameState(GameState.GameWin);
+    }
+    private void HandleWeaponPlacementFinished(WeaponPlacementFinishedEvent e)
+    {
+        SetGameState(GameState.Playing);
+    }
+    private void GoToMainMenu(BackToMenuButtonPressedEvent e)
+    {
+        SetGameState(GameState.MainMenu);
+    }
+    private void HandlePlayButtonPressed(PlayButtonPressedEvent e)
+    {
+        StartGame();
+    }
+    private void HandleNextLevelButtonPressed(NextLevelButtonPressedEvent e)
+    {
+        NextLevel();
+    }
+    private void HandleReplayLevelButtonPressed(ReplayLevelButtonPressedEvent e)
+    {
+        ReplayLevel();
+    }
+
     public void SetGameState(GameState newState)
     {
         if (gameState == newState)
